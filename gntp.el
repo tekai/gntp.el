@@ -56,41 +56,24 @@ emacs."
 path to a file."
   :type '(string))
 
+(defcustom gntp-server-port 23053
+  "Default port of the server. Standard says can't be changed, but port-forwarding etc."
+  :type '(integer))
+
 (defun gntp-register (notifications server &optional port)
-  "Register NOTIFICATIONS at SERVER"
+  "Register NOTIFICATIONS at SERVER:PORT. PORT defaults to
+`gntp-default-port'"
   (let ((message (gntp-build-message-register notifications)))
     (gntp-send message server port)))
 
-(defun gntp-send (message server &optional port)
-  (let* ((port (if port port 23053))
-         (proc (open-network-stream
-                "gntp"
-                "*gntp*"
-                server
-                port
-                :type 'plain
-                ))
-         (buf (process-buffer proc)))
-
-    (process-send-string proc (concat message "\r\n\r\n\r\n"))
-
-    ;; Watch us spin and stop Emacs from doing anything else!
-    (while (equal (process-status proc) 'open)
-      (when (not (accept-process-output proc 180))
-        (delete-process proc)
-        (error "Network timeout!")))
-    (delete-process proc)
-    (gntp-handle-reply buf))
-
-(defun gntp-handle-reply (buffer)
-  (with-current-buffer
-      (goto-char (point-min))
-    (if (looking-at "^GNTP/1.0 -ERROR")
-        (error "Something went wrong take a look at buffer %s"
-               (buffer-name buffer)))))
+(defun gntp-notify (name title text server &optional port)
+  "Send notification NAMEw withe TITLE and TEXT to
+SERVER:PORT. PORT defaults to `gntp-default-port'"
+  (let ((message (gntp-build-message-notify name title text)))
+    (gntp-send message server port)))
 
 (defun gntp-build-message-register (notifications)
-  "Build the message to register a notification types"
+  "Build the message to register notification types."
   (let ((lines (list "GNTP/1.0 REGISTER NONE"
                      (format "Application-Name: %s"
                              gntp-application-name)
@@ -143,14 +126,8 @@ path to a file."
    (when icon-uri
      (concat "Notification-Icon: " icon-uri)))))
 
-;; notice
-;;(list name ; everthing else is optional
-;;      :display "name to display"
-;;      :enabled nil
-;;      :icon "url or file")
-
-(defun gntp-notify (name title text)
-  "Send a previously registered notification"
+(defun gntp-build-message-notify (name title text)
+  "Send a previously registered NAMEd notification."
 
   (format "GNTP/1.0 NOTIFY NONE\r\n\
 Application-Name: %s\r\n\
@@ -158,9 +135,18 @@ Notification-Name: %s\r\n\
 Notification-Title: %s\r\n\
 Notification-Text: %s\r\n\
 \r\n"
-          gntp-application-name name title
+          gntp-application-name
+          (if (symbolp name) (symbol-name name) symbol)
+          title
           ;; no CRLF in the text to avoid accidentel msg end
-          (replace-regexp-in-string "\r\n" "\n" text))))
+          (replace-regexp-in-string "\r\n" "\n" text)))
+
+;; notice
+;;(list name ; everthing else is optional
+;;      :display "name to display"
+;;      :enabled nil
+;;      :icon "url or file")
+
 
 (defun gntp-notice-icon-uri (notice)
   (gntp-icon-uri (gntp-notice-get notice :icon)))
@@ -202,6 +188,29 @@ string"
 
 (defun gntp-notice-get (notice property)
   (plist-get (cdr notice) property))
+
+(defun gntp-send (message server &optional port)
+  "Send MESSAGE to SERVER:PORT. PORT defaults to
+`gntp-default-port'"
+  (let ((proc (make-network-process
+               :name "gntp"
+               :host server
+               :server nil
+               :service (if port port gntp-server-port)
+               ;;:sentinel 'gntp-sentinel
+               :filter 'gntp-filter)))
+    ;; hmm one CRLF too much?
+    (process-send-string proc (concat message "\r\n\r\n\r\n"))))
+
+(defun gntp-filter (proc string)
+  (when (string-equal "GNTP/1.0 -ERROR" (substring string 0 15))
+    (error "GNTP: Something went wrong take a look at the reply:\n %s"
+           string)))
+
+;; (defun gntp-sentinel (proc msg)
+;;   (when (string= msg "connection broken by remote peer\n")
+;;     (message (format "client %s has quit" proc))))
+
 
 (defun gntp-file-string (file)
   "Read the contents of a file and return as a string."
