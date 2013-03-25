@@ -2,7 +2,7 @@
 ;;; gntp.el --- Growl Notification Protocol for Emacs
 
 ;; Author: Engelke Eschner <tekai@gmx.li>
-;; Version: 0.001
+;; Version: 0.1
 ;; Created: 2013-03-21
 
 ;; LICENSE
