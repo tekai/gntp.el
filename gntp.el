@@ -1,5 +1,4 @@
-;;; -*- lexical-binding: t -*-
-;;; gntp.el --- Growl Notification Protocol for Emacs
+;;; gntp.el --- Growl Notification Protocol for Emacs -*- lexical-binding: t -*-
 
 ;; Author: Engelke Eschner <tekai@gmx.li>
 ;; Version: 0.1
@@ -35,40 +34,41 @@
 ;; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-;; DESCRIPTION
+;;; Commentary:
 ;; This package implements the Growl Notification Protocol GNTP
 ;; described at http://www.growlforwindows.com/gfw/help/gntp.aspx
-
 ;; It is incomplete as it only lets you send but not receive
 ;; notifications.
 
+;;; Code:
+
 (defgroup gntp nil
-  "GNTP, send/register growl notifications via GNTP from within
-emacs."
+  "GNTP, send/register growl notifications via GNTP from within emacs."
   :group 'external)
 
 (defcustom gntp-application-name "Emacs/gntp.el"
-  "Name of the application gntp registers itself"
+  "Name of the application gntp registers itself."
   :type '(string))
 
 (defcustom gntp-application-icon nil
-  "Icon to display as the application icon. Either a URL or a
-path to a file."
+  "Icon to display as the application icon.
+Either a URL or a path to a file."
   :type '(string))
 
 (defcustom gntp-server-port 23053
-  "Default port of the server. Standard says can't be changed, but port-forwarding etc."
+  "Default port of the server.
+Standard says can't be changed, but port-forwarding etc."
   :type '(integer))
 
 (defun gntp-register (notifications server &optional port)
-  "Register NOTIFICATIONS at SERVER:PORT. PORT defaults to
-`gntp-default-port'"
+  "Register NOTIFICATIONS at SERVER:PORT.
+PORT defaults to `gntp-default-port'."
   (let ((message (gntp-build-message-register notifications)))
     (gntp-send message server port)))
 
 (defun gntp-notify (name title text server &optional port)
-  "Send notification NAMEw withe TITLE and TEXT to
-SERVER:PORT. PORT defaults to `gntp-default-port'"
+  "Send notification NAME withe TITLE and TEXT to SERVER:PORT.
+PORT defaults to `gntp-default-port'"
   (let ((message (gntp-build-message-notify name title text)))
     (gntp-send message server port)))
 
@@ -107,7 +107,7 @@ SERVER:PORT. PORT defaults to `gntp-default-port'"
     (mapconcat 'identity (remove nil lines) "\r\n")))
 
 (defun gntp-notification-lines (notice)
-  "Transform NOTICE into a list of strings"
+  "Transform NOTICE into a list of strings."
   (let ((display-name (gntp-notice-get notice :display))
         (enabled (gntp-notice-get notice :enabled))
         (icon-uri (gntp-notice-icon-uri notice)))
@@ -155,11 +155,11 @@ Notification-Text: %s\r\n\
   (gntp-icon-data (gntp-notice-get notice :icon)))
 
 (defun gntp-app-icon-uri ()
-  "Return the value to be used in the Application-Icon header"
+  "Return the value to be used in the Application-Icon header."
   (gntp-icon-uri gntp-application-icon))
 
 (defun gntp-app-icon-data ()
-  "Return the value to be used in the Application-Icon header"
+  "Return the value to be used in the Application-Icon header."
   (gntp-icon-data gntp-application-icon))
 
 (defun gntp-icon-uri (icon)
@@ -179,8 +179,7 @@ Notification-Text: %s\r\n\
               id (length data) data))))
 
 (defun gntp-notice-name (notice)
-  "Get the name of NOTICE. The name must be either a symbol or
-string"
+  "Get the name of NOTICE.  The name must be either a symbol or string."
   (let ((name (car notice)))
     (if (symbolp name)
         (symbol-name name)
@@ -190,8 +189,7 @@ string"
   (plist-get (cdr notice) property))
 
 (defun gntp-send (message server &optional port)
-  "Send MESSAGE to SERVER:PORT. PORT defaults to
-`gntp-default-port'"
+  "Send MESSAGE to SERVER:PORT.  PORT defaults to `gntp-default-port'."
   (let ((proc (make-network-process
                :name "gntp"
                :host server
@@ -219,3 +217,5 @@ string"
     (buffer-string)))
 
 (provide 'gntp)
+
+;;; gntp.el ends here
