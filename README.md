@@ -51,5 +51,5 @@ This is the setup I use for rcirc:
 Authors & Contributors
 =====
 
-[Engelke Eschner](https://github.com/tekai)
-[Yuhei Maeda](https://github.com/myuhe)
+- [Engelke Eschner](https://github.com/tekai)
+- [Yuhei Maeda](https://github.com/myuhe)
