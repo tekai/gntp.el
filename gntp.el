@@ -73,7 +73,7 @@ PORT defaults to `gntp-default-port'"
     (gntp-send message server port)))
 
 (defun gntp-build-message-register (notifications)
-  "Build the message to register notification types."
+  "Build the message to register NOTIFICATIONS types."
   (let ((lines (list "GNTP/1.0 REGISTER NONE"
                      (format "Application-Name: %s"
                              gntp-application-name)
@@ -127,7 +127,7 @@ PORT defaults to `gntp-default-port'"
      (concat "Notification-Icon: " icon-uri)))))
 
 (defun gntp-build-message-notify (name title text)
-  "Send a previously registered NAMEd notification."
+  "Build a message of type NAME with TITLE and TEXT."
 
   (format "GNTP/1.0 NOTIFY NONE\r\n\
 Application-Name: %s\r\n\
@@ -149,9 +149,11 @@ Notification-Text: %s\r\n\
 
 
 (defun gntp-notice-icon-uri (notice)
+  "Get the icon URI from NOTICE."
   (gntp-icon-uri (gntp-notice-get notice :icon)))
 
 (defun gntp-notice-icon-data (notice)
+  "Get icon data from NOTICE."
   (gntp-icon-data (gntp-notice-get notice :icon)))
 
 (defun gntp-app-icon-uri ()
@@ -186,6 +188,7 @@ Notification-Text: %s\r\n\
       name)))
 
 (defun gntp-notice-get (notice property)
+  "Get PROPERTY from NOTICE."
   (plist-get (cdr notice) property))
 
 (defun gntp-send (message server &optional port)
@@ -201,6 +204,8 @@ Notification-Text: %s\r\n\
     (process-send-string proc (concat message "\r\n\r\n\r\n"))))
 
 (defun gntp-filter (proc string)
+  "Filter for PROC started by `gntp-send'.
+Argument STRING reply from the server."
   (when (string-equal "GNTP/1.0 -ERROR" (substring string 0 15))
     (error "GNTP: Something went wrong take a look at the reply:\n %s"
            string)))
@@ -211,7 +216,7 @@ Notification-Text: %s\r\n\
 
 
 (defun gntp-file-string (file)
-  "Read the contents of a file and return as a string."
+  "Read the contents of a FILE and return as a string."
   (with-temp-buffer
     (insert-file-contents-literally file)
     (buffer-string)))
