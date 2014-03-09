@@ -66,10 +66,10 @@ PORT defaults to `gntp-default-port'."
   (let ((message (gntp-build-message-register notifications)))
     (gntp-send message server port)))
 
-(defun gntp-notify (name title text server &optional port)
+(defun gntp-notify (name title text server &optional port icon)
   "Send notification NAME withe TITLE and TEXT to SERVER:PORT.
 PORT defaults to `gntp-default-port'"
-  (let ((message (gntp-build-message-notify name title text)))
+  (let ((message (gntp-build-message-notify name title text icon)))
     (gntp-send message server port)))
 
 (defun gntp-build-message-register (notifications)
@@ -126,20 +126,29 @@ PORT defaults to `gntp-default-port'"
    (when icon-uri
      (concat "Notification-Icon: " icon-uri)))))
 
-(defun gntp-build-message-notify (name title text)
+(defun gntp-build-message-notify (name title text &optional icon)
   "Build a message of type NAME with TITLE and TEXT."
 
-  (format "GNTP/1.0 NOTIFY NONE\r\n\
+  (format (if icon "GNTP/1.0 NOTIFY NONE\r\n\
 Application-Name: %s\r\n\
 Notification-Name: %s\r\n\
 Notification-Title: %s\r\n\
 Notification-Text: %s\r\n\
+Notification-Icon: %s\r\n\
 \r\n"
+"GNTP/1.0 NOTIFY NONE\r\n\
+Application-Name: %s\r\n\
+Notification-Name: %s\r\n\
+Notification-Title: %s\r\n\
+Notification-Text: %s\r\n\
+\r\n")
           gntp-application-name
           (if (symbolp name) (symbol-name name) symbol)
           title
           ;; no CRLF in the text to avoid accidentel msg end
-          (replace-regexp-in-string "\r\n" "\n" text)))
+          (replace-regexp-in-string "\r\n" "\n" text)
+          (gntp-icon-uri icon)
+          ))
 
 ;; notice
 ;;(list name ; everthing else is optional
