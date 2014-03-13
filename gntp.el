@@ -222,7 +222,7 @@ Notification-Text: %s\r\n\
     ;; hmm one CRLF too much?
     (process-send-string proc (concat message "\r\n\r\n\r\n"))))
 
-(defun gntp-filter (string)
+(defun gntp-filter (proc string)
   "Filter for PROC started by `gntp-send'.
 Argument STRING reply from the server."
   (when (string-equal "GNTP/1.0 -ERROR" (substring string 0 15))
