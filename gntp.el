@@ -62,13 +62,13 @@ Standard says can't be changed, but port-forwarding etc."
 
 (defun gntp-register (notifications server &optional port)
   "Register NOTIFICATIONS at SERVER:PORT.
-PORT defaults to `gntp-default-port'."
+PORT defaults to `gntp-server-port'."
   (let ((message (gntp-build-message-register notifications)))
     (gntp-send message server port)))
 
 (defun gntp-notify (name title text server &optional port icon)
   "Send notification NAME withe TITLE and TEXT to SERVER:PORT.
-PORT defaults to `gntp-default-port'"
+PORT defaults to `gntp-server-port'"
   (let ((message (gntp-build-message-notify name title text icon)))
     (gntp-send message server port)))
 
@@ -201,7 +201,7 @@ Notification-Text: %s\r\n\
   (plist-get (cdr notice) property))
 
 (defun gntp-send (message server &optional port)
-  "Send MESSAGE to SERVER:PORT.  PORT defaults to `gntp-default-port'."
+  "Send MESSAGE to SERVER:PORT.  PORT defaults to `gntp-server-port'."
   (let ((proc (make-network-process
                :name "gntp"
                :host server
