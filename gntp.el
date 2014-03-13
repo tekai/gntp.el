@@ -55,16 +55,26 @@
 Either a URL or a path to a file."
   :type '(string))
 
+(defcustom gntp-server "localhost"
+  "Default port of the server.
+Standard says can't be changed, but port-forwarding etc."
+  :type '(string))
+
 (defcustom gntp-server-port 23053
   "Default port of the server.
 Standard says can't be changed, but port-forwarding etc."
   :type '(integer))
 
-(defun gntp-register (notifications server &optional port)
+(defcustom gntp-register-alist nil
+  "Registration item list."
+  :type '(choice string (const nil)))
+
+(defun gntp-register (&optional notifications server  port)
+  (interactive)
   "Register NOTIFICATIONS at SERVER:PORT.
 PORT defaults to `gntp-server-port'."
-  (let ((message (gntp-build-message-register notifications)))
-    (gntp-send message server port)))
+  (let ((message (gntp-build-message-register (if notifications notifications gntp-register-alist))))
+    (gntp-send message (if server server gntp-server) port)))
 
 (defun gntp-notify (name title text server &optional port icon)
   "Send notification NAME withe TITLE and TEXT to SERVER:PORT.
