@@ -143,7 +143,7 @@ Notification-Title: %s\r\n\
 Notification-Text: %s\r\n\
 \r\n")
           gntp-application-name
-          (if (symbolp name) (symbol-name name) symbol)
+          (if (symbolp name) (symbol-name name) name)
           title
           ;; no CRLF in the text to avoid accidentel msg end
           (replace-regexp-in-string "\r\n" "\n" text)
@@ -212,7 +212,7 @@ Notification-Text: %s\r\n\
     ;; hmm one CRLF too much?
     (process-send-string proc (concat message "\r\n\r\n\r\n"))))
 
-(defun gntp-filter (proc string)
+(defun gntp-filter (string)
   "Filter for PROC started by `gntp-send'.
 Argument STRING reply from the server."
   (when (string-equal "GNTP/1.0 -ERROR" (substring string 0 15))
