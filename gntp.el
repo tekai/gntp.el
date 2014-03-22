@@ -139,25 +139,21 @@ PORT defaults to `gntp-server-port'"
 (defun gntp-build-message-notify (name title text &optional icon)
   "Build a message of type NAME with TITLE and TEXT."
 
-  (format (if icon "GNTP/1.0 NOTIFY NONE\r\n\
+  (format
+   "GNTP/1.0 NOTIFY NONE\r\n\
 Application-Name: %s\r\n\
 Notification-Name: %s\r\n\
 Notification-Title: %s\r\n\
 Notification-Text: %s\r\n\
 Notification-Icon: %s\r\n\
 \r\n"
-"GNTP/1.0 NOTIFY NONE\r\n\
-Application-Name: %s\r\n\
-Notification-Name: %s\r\n\
-Notification-Title: %s\r\n\
-Notification-Text: %s\r\n\
-\r\n")
           gntp-application-name
           (if (symbolp name) (symbol-name name) name)
           title
           ;; no CRLF in the text to avoid accidentel msg end
           (replace-regexp-in-string "\r\n" "\n" text)
-          (gntp-icon-uri icon)
+          (if icon (gntp-icon-uri icon) "")
+          
           ))
 
 ;; notice
