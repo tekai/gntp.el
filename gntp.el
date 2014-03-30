@@ -76,10 +76,10 @@ PORT defaults to `gntp-server-port'."
   (let ((message (gntp-build-message-register (if notifications notifications gntp-register-alist))))
     (gntp-send message (if server server gntp-server) port)))
 
-(defun gntp-notify (name title text server &optional port icon)
-  "Send notification NAME withe TITLE and TEXT to SERVER:PORT.
+(defun gntp-notify (name title text server &optional port priority icon)
+  "Send notification NAME with TITLE, TEXT, PRIORITY and ICON to SERVER:PORT.
 PORT defaults to `gntp-server-port'"
-  (let ((message (gntp-build-message-notify name title text icon)))
+  (let ((message (gntp-build-message-notify name title text priority icon)))
     (gntp-send message server port)))
 
 (defun gntp-build-message-register (notifications)
@@ -136,7 +136,7 @@ PORT defaults to `gntp-server-port'"
    (when icon-uri
      (concat "Notification-Icon: " icon-uri)))))
 
-(defun gntp-build-message-notify (name title text &optional icon)
+(defun gntp-build-message-notify (name title text &optional priority icon)
   "Build a message of type NAME with TITLE and TEXT."
 
   (format
@@ -145,6 +145,7 @@ Application-Name: %s\r\n\
 Notification-Name: %s\r\n\
 Notification-Title: %s\r\n\
 Notification-Text: %s\r\n\
+Notification-Priority: %s\r\n\
 Notification-Icon: %s\r\n\
 \r\n"
           gntp-application-name
@@ -152,9 +153,8 @@ Notification-Icon: %s\r\n\
           title
           ;; no CRLF in the text to avoid accidentel msg end
           (replace-regexp-in-string "\r\n" "\n" text)
-          (if icon (gntp-icon-uri icon) "")
-          
-          ))
+          (if priority priority "0")
+          (if icon (gntp-icon-uri icon) "")))
 
 ;; notice
 ;;(list name ; everthing else is optional
