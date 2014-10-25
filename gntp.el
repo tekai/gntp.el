@@ -76,6 +76,7 @@ PORT defaults to `gntp-server-port'."
   (let ((message (gntp-build-message-register (if notifications notifications gntp-register-alist))))
     (gntp-send message (if server server gntp-server) port)))
 
+;;;###autoload
 (defun gntp-notify (name title text server &optional port priority icon)
   "Send notification NAME with TITLE, TEXT, PRIORITY and ICON to SERVER:PORT.
 PORT defaults to `gntp-server-port'"
